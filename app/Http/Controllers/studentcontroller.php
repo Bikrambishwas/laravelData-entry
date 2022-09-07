@@ -3,18 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student;
+use App\Repositories\studentRepository1;
 use Illuminate\Http\Request;
 
 class studentcontroller extends Controller
-{
+{   
+    protected $student;  
+    public function __construct(studentRepository1 $student)
+    {
+        $this->student = $student; 
+    }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
-        $student = student::all();
+    {   
+        $student = $this->student->all();
+        // $student = student::all();
         return  $student;
     }
 
@@ -35,15 +42,17 @@ class studentcontroller extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
+     {
+        // $this->student->store($request->all()); 
         $student = new Student();
         $student->fullname = $request->name;
         $student->address = $request->address;
         $student->mobile = $request->mobile;
         $student->school = $request->school;
         $student->refer = $request->refer;
+       
         $student->save();
-        return redirect()->back();
+        return redirect('/');
     }
 
     /**
@@ -66,7 +75,8 @@ class studentcontroller extends Controller
      */
     public function edit($id)
     {
-        $student = student::find($id);
+        // $student = student::find($id);
+        $student = $this->student->get($id);
         return view('edit',compact('student'));
     }
 
@@ -77,16 +87,26 @@ class studentcontroller extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update($id ,Request $request)
     {
-        $student = student::find($id);
-        $student->fullname = $request->name;
-        $student->address = $request->address;
-        $student->mobile = $request->mobile;
-        $student->school = $request->school;
-        $student->refer = $request->refer;
-        $student->update();
-        return redirect()->back();
+        // $student = student::find($id);
+        // $student->fullname = $request->name;
+        // $student->address = $request->address;
+        // $student->mobile = $request->mobile;
+        // $student->school = $request->school;
+        // $student->refer = $request->refer;
+        // $student->update();
+        $request->validate([
+            'fullname'=>'',
+            'address'=>'',
+            'mobile'=>'',
+            'school'=>'',
+            'refer'=>'',
+
+        ]);
+        
+         $student = $this->student->update($id,$request->all());
+         return redirect('/');
     }
 
     /**
@@ -97,8 +117,8 @@ class studentcontroller extends Controller
      */
     public function destroy($id)
     {
-        $student = student::find($id);
-        $student->delete();
-        return redirect('/');
+    //    
+    $student = $this->student->delete($id);
+    return redirect('/');
     }
 }
